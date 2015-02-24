@@ -249,7 +249,15 @@ module Rouge
         mixin :comments
         rule string, Name::Tag
         rule /:/, Punctuation, :object_val
+        rule /(\.\.\.)/, Comment::Single, :ellipsis
         rule /}/, Error, :pop!
+      end
+
+      state :ellipsis do
+        mixin :whitespace
+        rule(/}/) { token Punctuation; pop!(2) }
+        rule(/"(\\.|[^"])*"/) { token Str::Double; pop!(1) }
+        #mixin :has_string
       end
 
       state :object_val do
@@ -261,6 +269,7 @@ module Rouge
       state :array do
         rule /\]/, Punctuation, :pop!
         rule /,/, Punctuation
+        rule /(\.\.\.)/, Comment::Single
         mixin :root
       end
     end
